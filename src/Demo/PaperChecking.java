@@ -1,16 +1,17 @@
 package Demo;
 
-import com.sun.security.jgss.GSSUtil;
 import org.ansj.domain.Result;
 
+import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PaperChecking {
 
@@ -44,51 +45,56 @@ public class PaperChecking {
     }
 
     //将字符串进行分词
-    //@return Result(类似list集合)
-    public  Result WordSegmentation(String str){
+    //@return List<String>
+    public  List<String> WordSegmentation(String str){
         Result result = ToAnalysis.parse(str);//分词结果的一个封装，主要是一个List<Term>的terms
-        return result;
+        List<Term> terms=result.getTerms();
+        List<String> strArray=terms.stream().map(param -> param.getName()).collect(Collectors.toList());
+        //System.out.println(strArray);
+        return strArray;
     }
 
 
     //求两个集合的去重并集
     //@return Result
-    public Result getUnion(Result r1,Result r2) {
-        Result r11=new Result(new ArrayList<>());
-        Result r22=new Result(new ArrayList<>());
-        r11.getTerms().addAll(r1.getTerms());
-        r22.getTerms().addAll(r2.getTerms());
-        r11.getTerms().removeAll(r22.getTerms());
-        r11.getTerms().addAll(r22.getTerms());
-        return r11;
+    public List<String> getUnion(List<String> l1,List<String> l2) {
+        List<String> l11=new ArrayList<>();
+        l11.addAll(l1);
+        l11.removeAll(l2);
+        l11.addAll(l2);
+        return l11;
     }
 
 
     //将字符串分词后的词集合根据词频生成各自的词频向量
-    public int[] getWordfrequencyVector(Result r,Result union) {
-        int [] wordfrequencyVector=new int[union.getTerms().size()];
-        for (int i = 0; i <union.getTerms().size() ; i++) {
-            for (int j = 0; j <r.getTerms().size() ; j++) {
-                if (union.get(i).equals(r.get(i))) {
-                    wordfrequencyVector[i]+=1;
-                }
+    public int[] getWordfrequencyVector(List<String> list,List<String> unionList) {
+        int[] vector=new int[unionList.size()];
+        for (int i = 0; i <unionList.size() ; i++) {
+            for (int j = 0; j < list.size(); j++) {
+                if(unionList.get(i)==list.get(j))
+                    vector[i]+=1;
             }
         }
-        return wordfrequencyVector;
+            return vector;
     }
 
     //得到两篇文章的词频向量后利用余弦公式计算相似度
-    //x1y1+x2y2.../sqrt(x1*x1+y1*y1)+sqrt(x2*x2+y2*y2)...
+    //
     //return double
     public double cosCalculator (int[] vector1,int[] vector2) {
-        //double result=0.0;
-        double up=0.0;
-        double down=1.0;
+
+        double up=0.00;
+        double down1=0.00;
+        double down2=0.00;
         for (int i = 0; i <vector1.length ; i++) {
-            up+=vector1[i]*vector2[i];
-            down*=Math.sqrt(vector1[i]*vector1[i]+vector2[i]*vector2[i]);
+                up += vector1[i] * vector2[i];
+                down1+=vector1[i]*vector1[i];
+                down2+=vector2[i]*vector2[i];
         }
+        double down=Math.sqrt(down1)*Math.sqrt(down2);
         double result=up/down;
+//        System.out.println(up);
+//        System.out.println(down);
         return result;
     }
 
@@ -106,13 +112,14 @@ public class PaperChecking {
     public void getSimilarity() throws IOException {
         String str1= CleanPunctuation(fileToString(originaltext));//转化为字符串并清除标点符号
         String str2= CleanPunctuation(fileToString(comparedtext));
-        //String str3= fileToString(outPutFile);
 
-        Result res1=WordSegmentation(str1);//分词
-        Result res2=WordSegmentation(str2);
+        List<String> strArray1=WordSegmentation(str1);//分词
+        List<String> strArray2=WordSegmentation(str2);
 
-        int[] wordfrequencyVector1=getWordfrequencyVector(res1,getUnion(res1,res2));//计算词频向量
-        int[] wordfrequencyVector2=getWordfrequencyVector(res1,getUnion(res1,res2));
+        int[] wordfrequencyVector1=getWordfrequencyVector(strArray1,getUnion(strArray1,strArray2));//计算词频向量
+        //System.out.println(Arrays.toString(wordfrequencyVector1));
+        int[] wordfrequencyVector2=getWordfrequencyVector(strArray2,getUnion(strArray1,strArray2));
+        //System.out.println(Arrays.toString(wordfrequencyVector2));
 
         double result=cosCalculator(wordfrequencyVector1,wordfrequencyVector2);//计算余弦相似度
         outPutResult(result,outPutFile);//控制台输出结果并输出到指定文件中去
@@ -120,52 +127,23 @@ public class PaperChecking {
 
 
     public static void main(String[] args) throws IOException {
-        /*System.out.println("请输入原文路径：");
+        System.out.println("请输入原文路径：");
         String str1=new Scanner(System.in).next();
+        //String str1="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\orig.txt";
         File f1=new File(str1);
 
         System.out.println("请输入要比较文章的路径：");
         String str2=new Scanner(System.in).next();
+        //String str2="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\orig_0.8_dis_15.txt";
         File f2=new File(str2);
 
         System.out.println("请输入答案文件（结果）路径：");
         String str3=new Scanner(System.in).next();
+        //String str3="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\result.txt";
         File f3=new File(str3);
 
         PaperChecking pc=new PaperChecking(f1,f2,f3);
-        pc.getSimilarity();*/
-
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-
-
-        File fa=new File("C:\\Users\\ASUS\\Desktop\\test\\orig.txt");
-        File fb=new File("C:\\Users\\ASUS\\Desktop\\test\\orig_0.8_add.txt");
-        File fc=new File("C:\\Users\\ASUS\\Desktop\\test\\result.txt");
-        File fd=new File("C:\\Users\\ASUS\\Desktop\\test\\路径.txt");
-
-        PaperChecking pc=new PaperChecking(fa,fb,fc);
-
-        //System.out.println(pc.fileToString(fa)); //测试String fileToString(File file);1
-
-        String str=pc.CleanPunctuation(pc.fileToString(fa));
-        String str2=pc.CleanPunctuation(pc.fileToString(fb));
-        System.out.println(str);//测试String CleanPunctuation(String str)；1
-
-
-        System.out.println(pc.WordSegmentation(str));//测试Result WordSegmentation(String str)；1
-        System.out.println(pc.WordSegmentation(str2));
-
-        System.out.println(pc.getUnion(pc.WordSegmentation(str),pc.WordSegmentation(str2)));
-        //测试Result getUnion(Result r1,Result r2)；xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-
-
+        pc.getSimilarity();
 
     }
 }
