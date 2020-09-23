@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="paperchecking:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/paperchecking_jar</output-path>
+    <root id="archive" name="paperchecking.jar">
+      <element id="module-output" name="paperchecking" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/nlp-lang-1.7.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/ansj_seg-5.1.6.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

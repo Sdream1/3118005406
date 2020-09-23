@@ -95,15 +95,23 @@ public class PaperChecking {
         double result=up/down;
 //        System.out.println(up);
 //        System.out.println(down);
-        return result;
+        return toDoublePercentage(result);
+    }
+
+    //转化为保留两位小数的百分数
+    public static double toDoublePercentage(double d) {
+        double d2=d*100.0;
+        BigDecimal decimal = new BigDecimal(d2);
+        return decimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
     //将计算结果（文章相似度）打印在控制台并输出到指定文件上
     public void outPutResult(double result,File outPutFile) throws IOException {
-        System.out.println("两篇文章的相似度为："+result);
+        System.out.println("两篇文章的相似度为："+result+"%");
         FileOutputStream fo=new FileOutputStream(outPutFile);
         fo.write("两篇文章的相似度为：".getBytes());
         fo.write(String.valueOf(result).getBytes());
+        fo.write("%".getBytes());
         fo.close();
     }
 
@@ -127,23 +135,29 @@ public class PaperChecking {
 
 
     public static void main(String[] args) throws IOException {
-        System.out.println("请输入原文路径：");
-        String str1=new Scanner(System.in).next();
-        //String str1="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\orig.txt";
-        File f1=new File(str1);
+        System.out.println("请输入原文路径（绝对路径）：");
+        String str1=new Scanner(System.in).next();//String str1="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\orig.txt";
+        //File f1=new File(str1);
 
-        System.out.println("请输入要比较文章的路径：");
-        String str2=new Scanner(System.in).next();
-        //String str2="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\orig_0.8_dis_15.txt";
-        File f2=new File(str2);
+        System.out.println("请输入要比较文章的路径（绝对路径）：");
+        String str2=new Scanner(System.in).next();//String str2="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\orig_0.8_dis_15.txt";
+       // File f2=new File(str2);
 
-        System.out.println("请输入答案文件（结果）路径：");
-        String str3=new Scanner(System.in).next();
-        //String str3="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\result.txt";
-        File f3=new File(str3);
+        System.out.println("请输入答案文件（结果）路径（绝对路径）：");
+        String str3=new Scanner(System.in).next();//String str3="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\result.txt";
+        //File f3=new File(str3);
+
+        //process(args[0],args[1],args[2]);
+        process(str1,str2,str3);
+
+        System.exit(0);
+    }
+    public static void process(String orgTextPath,String newTextPath,String ansFilePath) throws IOException {
+        File f1=new File(orgTextPath);
+        File f2=new File(newTextPath);
+        File f3=new File(ansFilePath);
 
         PaperChecking pc=new PaperChecking(f1,f2,f3);
         pc.getSimilarity();
-
     }
 }
