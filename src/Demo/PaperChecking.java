@@ -79,7 +79,6 @@ public class PaperChecking {
     }
 
     //得到两篇文章的词频向量后利用余弦公式计算相似度
-    //
     //return double
     public double cosCalculator (int[] vector1,int[] vector2) {
 
@@ -135,20 +134,23 @@ public class PaperChecking {
 
 
     public static void main(String[] args) throws IOException {
-        System.out.println("请输入原文路径（绝对路径）：");
-        String str1=new Scanner(System.in).next();//String str1="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\orig.txt";
+        //System.out.println("请输入原文路径（绝对路径）：");
+        //String str1=new Scanner(System.in).next();
+        //String str1="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\orig.txt";
         //File f1=new File(str1);
 
-        System.out.println("请输入要比较文章的路径（绝对路径）：");
-        String str2=new Scanner(System.in).next();//String str2="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\orig_0.8_dis_15.txt";
+        //System.out.println("请输入要比较文章的路径（绝对路径）：");
+        //String str2=new Scanner(System.in).next();
+        // String str2="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\orig_0.8_dis_15.txt";
        // File f2=new File(str2);
 
-        System.out.println("请输入答案文件（结果）路径（绝对路径）：");
-        String str3=new Scanner(System.in).next();//String str3="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\result.txt";
+       // System.out.println("请输入答案文件（结果）路径（绝对路径）：");
+        //String str3=new Scanner(System.in).next();
+        //String str3="C:\\\\Users\\\\ASUS\\\\Desktop\\\\test\\\\result.txt";
         //File f3=new File(str3);
 
-        //process(args[0],args[1],args[2]);
-        process(str1,str2,str3);
+        process(args[0],args[1],args[2]);
+        //process(str1,str2,str3);
 
         System.exit(0);
     }
